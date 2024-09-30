@@ -42,9 +42,9 @@ def run_server(
     collection_name: str = typer.Option(
         "hybrid_pipeline", help="Name of the collection"
     ),
-    reload_docs: bool = typer.Option(False, help="Whether to reload documents"),
+    reload_docs: bool = typer.Option(True, help="Whether to reload documents"),
     file_paths: list[str] = typer.Option(
-        ["/new_data/aldo/rag/2q24-cfsu-1.pdf"], help="Paths to the files to index"
+        ["/explorationDocs/2q24-cfsu-1.pdf"], help="Paths to the files to index"
     ),
 ):
     global reranker
