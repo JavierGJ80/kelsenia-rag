@@ -42,20 +42,22 @@ def run_server(
     collection_name: str = typer.Option(
         "hybrid_pipeline", help="Name of the collection"
     ),
-    reload_docs: bool = typer.Option(False, help="Whether to reload documents"),
+    reload_docs: bool = typer.Option(True, help="Whether to reload documents"),
     file_paths: list[str] = typer.Option(
-        ["/new_data/aldo/rag/2q24-cfsu-1.pdf"], help="Paths to the files to index"
+        ["explorationDocs/2q24-cfsu-1.pdf"], help="Paths to the files to index"
     ),
 ):
     global reranker
     reranker = FlagEmbeddingReranker(model="BAAI/bge-reranker-v2-m3", top_n=10)
     global index
+    print('Asingnin index')
     index = create_index(
         milvus_db_path=milvus_db_path,
         collection_name=collection_name,
         reload_docs=reload_docs,
         file_paths=tuple(file_paths),
     )
+    print('Runing uvicorn app')
     uvicorn.run(app, host="0.0.0.0", port=8001)
 
 
