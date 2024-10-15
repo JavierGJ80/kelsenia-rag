@@ -18,15 +18,9 @@ def create_index(
     reload_docs=False,
     file_paths=("/new_data/aldo/rag/2q24-cfsu-1.pdf",),
 ):
-    
-    print(milvus_db_path)
-    print(collection_name)
-    print(reload_docs)
-    print(file_paths)
-    print('Initializing components')
 
     # torch.cuda.set_per_process_memory_fraction(0.75, 0)
-    torch.set_default_device('cpu')
+    # torch.set_default_device('cpu')
     # torch.cuda.is_available = lambda: False
 
 
