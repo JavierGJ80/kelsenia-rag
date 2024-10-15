@@ -9,6 +9,7 @@ from pydantic import BaseModel
 import uvicorn
 import time
 import datetime
+import json
 
 from dotenv import load_dotenv
 
@@ -18,6 +19,7 @@ from llama_index.core.response_synthesizers.type import ResponseMode
 from llama_index.llms.langchain import LangChainLLM
 from llama_index.postprocessor.flag_embedding_reranker import FlagEmbeddingReranker
 from llama_index.core.vector_stores.types import VectorStoreQueryMode
+from llama_index.core.base.response.schema import Response
 
 from langchain_openai import OpenAI, ChatOpenAI
 
@@ -149,7 +151,15 @@ async def get_response(query: Query):
     query_engine = create_query_engine(index, languageModel)
 
     # Execute the query
-    query_res = await query_engine.aquery(query_str)
+    query_res: Response = await query_engine.aquery(query_str)
+    # print(json.dumps(query_res.source_nodes[0].node.metadata, indent=4, ensure_ascii=False))
+    print(json.dumps(query_res.metadata, indent=4, ensure_ascii=False))
+    # scores = [node['score'] for node in query_res.source_nodes]
+    # print(scores)
+
+    # metadata = [node['metadata'] for node in query_res.source_nodes]
+    # print(metadata)
+
     print(
         f"\033[92mResponse from {languageModel} for question:\033[0m \033[95m'{query_str}'\033[0m\n\033[0m{query_res}\033[0m"
     )
