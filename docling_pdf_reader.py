@@ -10,6 +10,7 @@ from docling.document_converter import DocumentConverter
 
 class DocumentMetadata(BaseModel):
     dl_doc_hash: str
+    filename: str
 
 
 class DoclingPDFReader(BasePydanticReader):
@@ -33,7 +34,7 @@ class DoclingPDFReader(BasePydanticReader):
                     raise RuntimeError(
                         f"Unexpected parse type encountered: {self.parse_type}"
                     )
-            excl_metadata_keys = ["dl_doc_hash"]
+            excl_metadata_keys = ["dl_doc_hash", "filename"]
             li_doc = LIDocument(
                 doc_id=dl_doc.file_info.document_hash,
                 text=text,
@@ -42,5 +43,6 @@ class DoclingPDFReader(BasePydanticReader):
             )
             li_doc.metadata = DocumentMetadata(
                 dl_doc_hash=dl_doc.file_info.document_hash,
+                filename=dl_doc.file_info.filename
             ).model_dump()
             yield li_doc

@@ -45,7 +45,7 @@ async def get_all_responses(llms, query):
 
 
 # Add a multiselect for LLM selection
-llm_options = ["claude", "openai", "granite"]
+llm_options = ["openai"]
 selected_llms = st.multiselect("Select LLM(s):", llm_options)
 
 if prompt := st.chat_input(
