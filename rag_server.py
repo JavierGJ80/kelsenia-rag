@@ -20,6 +20,9 @@ from llama_index.llms.langchain import LangChainLLM
 from llama_index.postprocessor.flag_embedding_reranker import FlagEmbeddingReranker
 from llama_index.core.vector_stores.types import VectorStoreQueryMode
 from llama_index.core.base.response.schema import Response
+from llama_index.core.utils import truncate_text
+from llama_index.core.bridge.pydantic import SerializeAsAny
+from llama_index.core.schema import BaseNode, NodeWithScore
 
 from langchain_openai import OpenAI, ChatOpenAI
 
@@ -143,6 +146,22 @@ class Query(BaseModel):
     llm: str
     query_str: str
 
+def parse_node(node_with_score: NodeWithScore):
+    parsed_node = {
+        'filename': node_with_score.node.metadata.get('filename', 'no_filename'),
+        'content': truncate_text(node_with_score.node.get_content().strip(), 350),
+        'score': node_with_score.score
+    }
+    return parsed_node
+
+def parse_query_res(query_res: Response):
+    nodes = [parse_node(node_with_score) for node_with_score in query_res.source_nodes]
+    json_response = {
+        'response': query_res.response,
+        'nodes': nodes
+    }
+
+    return json_response
 
 async def get_response(query: Query):
     languageModel = query.llm
@@ -152,25 +171,19 @@ async def get_response(query: Query):
 
     # Execute the query
     query_res: Response = await query_engine.aquery(query_str)
-    # print(json.dumps(query_res.source_nodes[0].node.metadata, indent=4, ensure_ascii=False))
-    print(json.dumps(query_res.metadata, indent=4, ensure_ascii=False))
-    # scores = [node['score'] for node in query_res.source_nodes]
-    # print(scores)
-
-    # metadata = [node['metadata'] for node in query_res.source_nodes]
-    # print(metadata)
+    json_response = parse_query_res(query_res)
 
     print(
         f"\033[92mResponse from {languageModel} for question:\033[0m \033[95m'{query_str}'\033[0m\n\033[0m{query_res}\033[0m"
     )
-    return query_res.response  # Return just the response string
+    return json_response
 
 
 @app.post("/get_response")
 async def get_response_endpoint(query: Query):
     try:
-        response = await get_response(query)
-        return JSONResponse(content={"response": response})
+        json_response = await get_response(query)
+        return JSONResponse(content=json_response)
     except Exception as e:
         import traceback
 
